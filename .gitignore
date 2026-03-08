@@ -1,0 +1,18 @@
+# Data Files
+*.hdf5
+*.pkl
+*.sdf
+*.pdb
+*.png
+*.log
+*.xyz
+*.csv
+*.txt
+
+
+# Python
+__pycache__/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store

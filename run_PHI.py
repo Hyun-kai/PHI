@@ -9,6 +9,7 @@ run_PHI.py
 - 다이머(Dimer) 생성 단계를 완전히 제거하고, 모노머를 직접 폴리머로 조립하도록 파이프라인을 단축했습니다.
 - 모노머 샘플링 직후 해당 모노머를 평가하는 분석(Analysis) 로직을 추가했습니다.
 - 하위 스크립트(main.py) 호출 시 GPU 옵션 전달 방식을 정수형(0 or 1)으로 고정하여 안정성을 높였습니다.
+- [추가] 하이브리드 최적화 제어를 위한 --optimize 플래그 연동 로직을 추가했습니다.
 """
 
 import os
@@ -80,6 +81,9 @@ def main():
     
     # [설정] GPU 사용 여부 (0: CPU, 1: GPU)
     parser.add_argument("--use_gpu", type=int, default=1, help="1 for GPU, 0 for CPU")
+    
+    # [수정] 최적화 제어 스위치 추가
+    parser.add_argument("--optimize", action="store_true", help="Enable global ASE optimization after assembly")
     
     args = parser.parse_args()
 
@@ -155,7 +159,7 @@ def main():
             else:
                 print(f"{YELLOW}[Info] Monomer {mono_name} already exists.{NC}")
 
-            # [추가됨] 샘플링 완료 직후 모노머 구조 분석(Analysis) 수행
+            # 샘플링 완료 직후 모노머 구조 분석(Analysis) 수행
             if os.path.exists(mono_file):
                 run_command(f"python {main_script} analyze --file {mono_file}", f"Analyzing Monomer {mono_name}")
 
@@ -169,11 +173,14 @@ def main():
         # ----------------------------------------------------------------------
         print(f"\n{BLUE}--- [Phase 3] {args.target_length}-mer Assembly (Direct Tiling) ---{NC}")
         
+        # [수정] 최적화 옵션 문자열 생성
+        opt_str = " --optimize" if args.optimize else ""
+        
         # main.py의 polymer 모드 호출 
         # (방금 생성 및 분석을 마친 primary_mono_file을 입력 파일로 강제 주입하여 이어붙임)
         cmd_poly = (f"python {main_script} polymer --residues {res_str} --rotamers {rot_str} "
                     f"--target_length {args.target_length} --threads {args.threads} {gpu_opt} "
-                    f"--input_file {primary_mono_file}") 
+                    f"--input_file {primary_mono_file}{opt_str}") 
                     
         run_command(cmd_poly, f"Assembling {args.target_length}-mer from Monomer {unit_base_name}")
 

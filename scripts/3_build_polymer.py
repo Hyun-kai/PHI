@@ -289,10 +289,14 @@ def run(args):
     polymer_name = f"{base_name}_{suffix}"
     
     print(f"{GREEN}>>> [Step 3] Polymer Building: {polymer_name}{NC}")
-    if args.optimize:
+    
+    # args에 optimize가 없으면 에러를 내지 말고 False를 반환하도록 안전장치(getattr) 적용
+    use_opt = getattr(args, 'optimize', False)
+    
+    if use_opt:
         print(f"{YELLOW}>>> [Notice] Hybrid Mode: Strict rigid assembly + Global ASE optimization at the end.{NC}")
     else:
-        print(f"{YELLOW}>>> [Notice] Rigid Mode: ASE Optimization is DISABLED. Generating pure geometric structures.{NC}")
+        print(f"{YELLOW}>>> [Notice] Rigid Mode: ASE Optimization is DISABLED. Generating pure geometric structures.{NC}")    
     
     output_dir = os.path.join(PROJECT_ROOT, '1_data', 'polymers')
     os.makedirs(output_dir, exist_ok=True)
@@ -341,8 +345,9 @@ def run(args):
     pbar = tqdm.tqdm(total=len(tiled_points), colour='cyan', desc='[Processing]')
     
     try:
-        # [수정] args.optimize 파라미터를 Task 튜플에 함께 전달
-        tasks = [(full_residues, full_rotamers, tiled_points[i], tiled_xyzs[i], args.residues, args.optimize) for i in range(len(tiled_points))]
+        # [수정됨] 안전장치가 적용된 use_opt 변수를 사용하여 Task를 생성
+        use_opt = getattr(args, 'optimize', False)
+        tasks = [(full_residues, full_rotamers, tiled_points[i], tiled_xyzs[i], args.residues, use_opt) for i in range(len(tiled_points))]
         iterator = pool.imap(_build_polymer_task, tasks) if pool else (_build_polymer_task(t) for t in tasks)
         
         for i, res in enumerate(iterator):

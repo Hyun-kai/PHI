@@ -294,9 +294,9 @@ def run(args):
     use_opt = getattr(args, 'optimize', False)
     
     if use_opt:
-        print(f"{YELLOW}>>> [Notice] Hybrid Mode: Strict rigid assembly + Global ASE optimization at the end.{NC}")
+        print(f"{YELLOW}>>> [Notice] Optimize Mode: Strict rigid assembly + Global ASE optimization at the end.{NC}")
     else:
-        print(f"{YELLOW}>>> [Notice] Rigid Mode: ASE Optimization is DISABLED. Generating pure geometric structures.{NC}")    
+        print(f"{YELLOW}>>> [Notice] Assembly Mode: ASE Optimization is DISABLED. Generating pure geometric structures.{NC}")    
     
     output_dir = os.path.join(PROJECT_ROOT, '1_data', 'polymers')
     os.makedirs(output_dir, exist_ok=True)

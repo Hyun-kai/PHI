@@ -9,6 +9,7 @@ BAKERS 프로젝트의 통합 실행 컨트롤러(Unified Controller)입니다.
 - [Fix] Argparse 호환성 수정: '--use_gpu' 옵션을 int(0/1)로 명시하여 전달
 - [Refactor] Type Hinting 및 상세 주석 추가
 - [Feature] 각 단계별 실행 로그 강화
+- [Feature] Polymer 조립 단계에서 하이브리드 최적화를 제어할 수 있는 '--optimize' 플래그 추가
 """
 
 import os
@@ -135,6 +136,9 @@ def main() -> None:
     
     # [Input] 명시적 입력 파일 (Unit Block HDF5) 지정
     p_poly.add_argument("--input_file", type=str, default=None, help="Explicit input HDF5 file path")
+
+    # [수정] --optimize 플래그 정식 등록 (하위 스크립트로 안전하게 전달됨)
+    p_poly.add_argument("--optimize", action="store_true", help="Enable global ASE optimization after assembly")
 
     # --------------------------------------------------------------------------
     # 5. Analyze (분석) - 4_analyze_results.py
